@@ -32,16 +32,17 @@
             this.btnSendMsg = new System.Windows.Forms.Button();
             this.txtIP = new System.Windows.Forms.TextBox();
             this.txtPort = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txtLog = new System.Windows.Forms.TextBox();
+            this.txtMsg = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(288, 14);
+            this.btnConnect.Location = new System.Drawing.Point(334, 14);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(75, 23);
             this.btnConnect.TabIndex = 0;
@@ -57,10 +58,11 @@
             this.btnSendMsg.TabIndex = 1;
             this.btnSendMsg.Text = "发送消息";
             this.btnSendMsg.UseVisualStyleBackColor = true;
+            this.btnSendMsg.Click += new System.EventHandler(this.btnSendMsg_Click);
             // 
             // txtIP
             // 
-            this.txtIP.Location = new System.Drawing.Point(93, 14);
+            this.txtIP.Location = new System.Drawing.Point(139, 15);
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(138, 25);
             this.txtIP.TabIndex = 2;
@@ -68,30 +70,30 @@
             // 
             // txtPort
             // 
-            this.txtPort.Location = new System.Drawing.Point(237, 14);
+            this.txtPort.Location = new System.Drawing.Point(283, 14);
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(45, 25);
             this.txtPort.TabIndex = 3;
-            this.txtPort.Text = "50001";
+            this.txtPort.Text = "50000";
             this.txtPort.TextChanged += new System.EventHandler(this.txtPort_TextChanged);
             // 
-            // textBox1
+            // txtLog
             // 
-            this.textBox1.Location = new System.Drawing.Point(21, 77);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(482, 134);
-            this.textBox1.TabIndex = 4;
+            this.txtLog.Location = new System.Drawing.Point(21, 77);
+            this.txtLog.Multiline = true;
+            this.txtLog.Name = "txtLog";
+            this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtLog.Size = new System.Drawing.Size(482, 134);
+            this.txtLog.TabIndex = 4;
             // 
-            // textBox2
+            // txtMsg
             // 
-            this.textBox2.Location = new System.Drawing.Point(21, 259);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox2.Size = new System.Drawing.Size(482, 147);
-            this.textBox2.TabIndex = 5;
+            this.txtMsg.Location = new System.Drawing.Point(21, 259);
+            this.txtMsg.Multiline = true;
+            this.txtMsg.Name = "txtMsg";
+            this.txtMsg.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtMsg.Size = new System.Drawing.Size(482, 147);
+            this.txtMsg.TabIndex = 5;
             // 
             // label1
             // 
@@ -114,27 +116,39 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(24, 17);
+            this.label3.Location = new System.Drawing.Point(18, 18);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(63, 15);
+            this.label3.Size = new System.Drawing.Size(119, 15);
             this.label3.TabIndex = 8;
-            this.label3.Text = "IP:Port";
+            this.label3.Text = "Server IP:Port";
+            // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(416, 13);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.TabIndex = 9;
+            this.btnDisconnect.Text = "断开";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
             // Form1
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(522, 421);
+            this.Controls.Add(this.btnDisconnect);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.txtMsg);
+            this.Controls.Add(this.txtLog);
             this.Controls.Add(this.txtPort);
             this.Controls.Add(this.txtIP);
             this.Controls.Add(this.btnSendMsg);
             this.Controls.Add(this.btnConnect);
             this.Name = "Form1";
             this.Text = "TCP_client";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,11 +160,12 @@
         private System.Windows.Forms.Button btnSendMsg;
         private System.Windows.Forms.TextBox txtIP;
         private System.Windows.Forms.TextBox txtPort;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txtLog;
+        private System.Windows.Forms.TextBox txtMsg;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnDisconnect;
     }
 }
 
