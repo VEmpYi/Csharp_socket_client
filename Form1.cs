@@ -137,8 +137,24 @@ namespace socket1_client
                             socketSend.Close();
                             break;
                         }
-                        string str = Encoding.UTF8.GetString(buffer, 0, r);
-                        ShowMsg(socketSend.RemoteEndPoint + ": " + str, 2);
+                        if (buffer[0] == (byte)msgType.text)
+                        {
+                            string str = Encoding.UTF8.GetString(buffer, 1, r-1);
+                            ShowMsg(socketSend.RemoteEndPoint + ": " + str, 2);
+                        }
+                        else if (buffer[0] == (byte)msgType.file)
+                        {
+
+                        }
+                        else if (buffer[0] == (byte)msgType.shake)
+                        {
+
+                        }
+                        else
+                        {
+                            ShowMsg("Message type error!", 1);
+                        }
+                        
                     }
                     
 
@@ -190,6 +206,9 @@ namespace socket1_client
             }
         }
 
+        /// <summary>
+        /// define the message types
+        /// </summary>
         enum msgType
         {
             text,
