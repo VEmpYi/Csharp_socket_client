@@ -157,6 +157,7 @@ namespace socket1_client
             {
                 string str = txtMsg.Text.Trim();
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(str);
+                bool answer = MessageHeaders(msgType.text,ref buffer);
                 socketSend.Send(buffer);
                 ShowMsg("Send to " + socketSend.RemoteEndPoint + ": " + str, 2);
                 txtMsg.Clear();
@@ -165,6 +166,35 @@ namespace socket1_client
             {
                 ShowMsg("Message send failure!", 1);
             }
+        }
+
+        /// <summary>
+        /// Adds a message type header to the message to be sent
+        /// </summary>
+        /// <param name="type">message type</param>
+        /// <param name="buffer">the message to be sent</param>
+        /// <returns>whether the action was successful</returns>
+        private bool MessageHeaders(msgType type, ref byte[] buffer)
+        {
+            try
+            {
+                List<byte> list = new List<byte>();
+                list.Add((byte)type);
+                list.AddRange(buffer);
+                buffer = list.ToArray();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        enum msgType
+        {
+            text,
+            file,
+            shake
         }
 
         private void btnDisconnect_Click(object sender, EventArgs e)
