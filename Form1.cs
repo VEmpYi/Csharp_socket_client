@@ -236,7 +236,6 @@ namespace socket1_client
                 if (connected)
                 {
                     receive.Abort();
-                    // socketSend.Dispose();
                     socketSend.Close();
                     connected = false;
 
@@ -256,8 +255,7 @@ namespace socket1_client
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //socketSend.Disconnect(false);
-            //socketSend.Close();
+            socketSend.Close();
         }
 
         private void Form1_Load(object sender, EventArgs e)
