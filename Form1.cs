@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -69,7 +70,7 @@ namespace socket1_client
                     // Connect to the remote server application through IP address and port
                     socketSend.Connect(point);
                     connected = true;
-                    ShowMsg("Connection succful!");
+                    ShowMsg("Connection successful!");
                     // create a new thread to receive the message from server
                     receive = new Thread(Receive);
                     receive.IsBackground = true;
@@ -139,12 +140,23 @@ namespace socket1_client
                         }
                         if (buffer[0] == (byte)msgType.text)
                         {
-                            string str = Encoding.UTF8.GetString(buffer, 1, r-1);
+                            string str = Encoding.UTF8.GetString(buffer, 1, r - 1);
                             ShowMsg(socketSend.RemoteEndPoint + ": " + str, 2);
                         }
                         else if (buffer[0] == (byte)msgType.file)
                         {
-
+                            SaveFileDialog sfd = new SaveFileDialog();
+                            string path = @"C:\Users\" + Environment.UserName + @"\Desktop";
+                            sfd.InitialDirectory = path;
+                            sfd.Title = "Save";
+                            sfd.Filter = "All Files|*.*";
+                            sfd.ShowDialog(this);
+                            string newPath = sfd.FileName;
+                            using (FileStream fsWrite = new FileStream(newPath, FileMode.OpenOrCreate, FileAccess.Write))
+                            {
+                                fsWrite.Write(buffer, 1, r - 1);
+                            }
+                            ShowMsg("File save successful!");
                         }
                         else if (buffer[0] == (byte)msgType.shake)
                         {
@@ -152,7 +164,8 @@ namespace socket1_client
                         }
                         else
                         {
-                            ShowMsg("Message type error!", 1);
+                            string str = "Message type error! buffer[0] is " + buffer[0];
+                            ShowMsg(str, 1);
                         }
                         
                     }
