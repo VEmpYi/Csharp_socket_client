@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace socket1_client
 {
@@ -78,6 +80,7 @@ namespace socket1_client
                     socketSend.Connect(point);
                     // Change the running status of the server
                     connected = true;
+                    // Indicate the connection status
                     cBoxConnect.CheckState = CheckState.Checked;
                     ShowMsg("Connection successful!");
                     // create a new thread to receive the message from server
@@ -99,35 +102,37 @@ namespace socket1_client
         /// <param name="level">log level default is INFO, ERROR is 1, MESG is 2</param>
         private void ShowMsg(string str, int level = 0)
         {
-            string time = DateTime.Now.ToString().Substring(11);
-            string state;
-            switch (level)
-            {
-                case 0:
-                    state = "[INFO]";
-                    break;
-
-                case 1:
-                    state = "[ERROR]";
-                    break;
-
-                case 2:
-                    state = "[MESG]";
-                    break;
-
-                default:
-                    state = "[NULL]";
-                    break;
-            }
             try
             {
+                string time = DateTime.Now.ToString().Substring(11);
+                string state;
+                switch (level)
+                {
+                    case 0:
+                        state = "[INFO]";
+                        break;
+
+                    case 1:
+                        state = "[ERROR]";
+                        break;
+
+                    case 2:
+                        state = "[MESG]";
+                        break;
+
+                    default:
+                        state = "[NULL]";
+                        break;
+                }
                 txtLog.AppendText(state + "[" + time + "]" + str + "\r\n");
             }
-            catch
-            {
-            }
+            catch { }
         }
 
+        /// <summary>
+        /// Process the received message based on the message type
+        /// </summary>
+        /// <param name="obj">thread</param>
         private void Receive(object obj)
         {
             Socket socketSend = obj as Socket;
@@ -137,14 +142,16 @@ namespace socket1_client
                 {
                     if (connected)
                     {
-                        byte[] buffer = new byte[1024 * 1024 * 2];
+                        byte[] buffer = new byte[1024 * 1024 * 10];
                         int r = socketSend.Receive(buffer);
+                        // if r == 0, the connection may be closed
                         if (r == 0)
                         {
                             ShowMsg(socketSend.RemoteEndPoint.ToString() + ": " + "Close!");
-                            socketSend.Disconnect(false);
                             socketSend.Close();
+                            // Indicate the connection status
                             cBoxConnect.CheckState = CheckState.Unchecked;
+                            connected = false;
                             break;
                         }
                         if (buffer[0] == (byte)msgType.text)
@@ -154,26 +161,32 @@ namespace socket1_client
                         }
                         else if (buffer[0] == (byte)msgType.file)
                         {
+                            // Get the length of file name to separate the name from the buffer
+                            int fileNameLength = (int)buffer[1];
+                            byte[] btFileName = buffer.Skip(2).Take(fileNameLength).ToArray();
+                            string fileName = Encoding.UTF8.GetString(btFileName);
+                            // Create a save fule dialog
                             SaveFileDialog sfd = new SaveFileDialog();
                             string path = @"C:\Users\" + Environment.UserName + @"\Desktop";
                             sfd.InitialDirectory = path;
                             sfd.Title = "Save";
                             sfd.Filter = "All Files|*.*";
+                            sfd.FileName = fileName;
                             sfd.ShowDialog(this);
                             string newPath = sfd.FileName;
+                           // Write file
                             using (FileStream fsWrite = new FileStream(newPath, FileMode.OpenOrCreate, FileAccess.Write))
                             {
-                                fsWrite.Write(buffer, 1, r - 1);
+                                fsWrite.Write(buffer, 2 + fileNameLength, r - 2 - fileNameLength);
                             }
-                            ShowMsg("File save successful!");
+                            ShowMsg("File transfer completed!");
                         }
                         else if (buffer[0] == (byte)msgType.shake)
                         {
                         }
                         else
                         {
-                            string str = "Message type error! buffer[0] is " + buffer[0];
-                            ShowMsg(str, 1);
+                            ShowMsg("Message type error!", 1);
                         }
                     }
                 }
@@ -185,13 +198,22 @@ namespace socket1_client
             }
         }
 
+        /// <summary>
+        /// Send message to the server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnSendMsg_Click(object sender, EventArgs e)
         {
             try
             {
+                // Remove useless content from message
                 string str = txtMsg.Text.Trim();
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(str);
+                // Add the message type to the text
                 bool answer = MessageHeaders(msgType.text, ref buffer);
+                if (!answer) return;
+                // Send the message
                 socketSend.Send(buffer);
                 ShowMsg("Send to " + socketSend.RemoteEndPoint + ": " + str, 2);
                 txtMsg.Clear();
@@ -220,6 +242,7 @@ namespace socket1_client
             }
             catch
             {
+                ShowMsg("Content processing failure!", 1);
                 return false;
             }
         }
@@ -234,14 +257,22 @@ namespace socket1_client
             shake
         }
 
+        /// <summary>
+        /// Disconnect from the server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
             try
             {
                 if (connected)
                 {
+                    // Try to disconnect the thread
                     receive.Abort();
+                    // Close the connection
                     socketSend.Close();
+                    // Indicate the connection status
                     cBoxConnect.CheckState = CheckState.Unchecked;
                     connected = false;
                     ShowMsg("Connection close!");
@@ -257,11 +288,21 @@ namespace socket1_client
             }
         }
 
+        /// <summary>
+        /// Disconnect before closing the window
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             socketSend.Close();
         }
 
+        /// <summary>
+        /// Cancel cross-thread operation warning
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
             Control.CheckForIllegalCrossThreadCalls = false;
