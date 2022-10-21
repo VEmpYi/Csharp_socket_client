@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace socket1_client
@@ -28,6 +22,11 @@ namespace socket1_client
             socketSend.Close();
         }
 
+        /// <summary>
+        /// Try to ensure the correct port number
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void txtPort_TextChanged(object sender, EventArgs e)
         {
             if (System.Text.RegularExpressions.Regex.IsMatch(txtPort.Text, "[^0-9]"))
@@ -49,11 +48,18 @@ namespace socket1_client
         }
 
         // create the socket responsible for communication
-        Socket socketSend;
-        Thread receive;
+        private Socket socketSend;
 
-        bool connected = false;
-        
+        private Thread receive;
+
+        // Create a variable to indicate whether the listener has started
+        private bool connected = false;
+
+        /// <summary>
+        /// Create a socket and start listening
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConnect_Click(object sender, EventArgs e)
         {
             try
@@ -64,12 +70,15 @@ namespace socket1_client
                 }
                 else
                 {
+                    // Create a Socket to listen
                     socketSend = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    IPAddress ip = IPAddress.Parse(txtIP.Text);
-                    IPEndPoint point = new IPEndPoint(ip, Convert.ToInt32(txtPort.Text));
+                    // Get the listening address and listening port from the text box
+                    IPEndPoint point = new IPEndPoint(IPAddress.Parse(txtIP.Text), Convert.ToInt32(txtPort.Text));
                     // Connect to the remote server application through IP address and port
                     socketSend.Connect(point);
+                    // Change the running status of the server
                     connected = true;
+                    cBoxConnect.CheckState = CheckState.Checked;
                     ShowMsg("Connection successful!");
                     // create a new thread to receive the message from server
                     receive = new Thread(Receive);
@@ -81,7 +90,6 @@ namespace socket1_client
             {
                 ShowMsg("Connect failure!", 1);
             }
-            
         }
 
         /// <summary>
@@ -89,7 +97,7 @@ namespace socket1_client
         /// </summary>
         /// <param name="str">Log message</param>
         /// <param name="level">log level default is INFO, ERROR is 1, MESG is 2</param>
-        void ShowMsg(string str, int level = 0)
+        private void ShowMsg(string str, int level = 0)
         {
             string time = DateTime.Now.ToString().Substring(11);
             string state;
@@ -98,29 +106,29 @@ namespace socket1_client
                 case 0:
                     state = "[INFO]";
                     break;
+
                 case 1:
                     state = "[ERROR]";
                     break;
+
                 case 2:
                     state = "[MESG]";
                     break;
+
                 default:
                     state = "[NULL]";
                     break;
             }
             try
             {
-                
                 txtLog.AppendText(state + "[" + time + "]" + str + "\r\n");
             }
             catch
             {
-
             }
-            
         }
 
-        void Receive(object obj)
+        private void Receive(object obj)
         {
             Socket socketSend = obj as Socket;
             try
@@ -136,6 +144,7 @@ namespace socket1_client
                             ShowMsg(socketSend.RemoteEndPoint.ToString() + ": " + "Close!");
                             socketSend.Disconnect(false);
                             socketSend.Close();
+                            cBoxConnect.CheckState = CheckState.Unchecked;
                             break;
                         }
                         if (buffer[0] == (byte)msgType.text)
@@ -160,23 +169,19 @@ namespace socket1_client
                         }
                         else if (buffer[0] == (byte)msgType.shake)
                         {
-
                         }
                         else
                         {
                             string str = "Message type error! buffer[0] is " + buffer[0];
                             ShowMsg(str, 1);
                         }
-                        
                     }
-                    
-
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                if(!(e is System.Threading.ThreadAbortException))
-                ShowMsg("Connection error! Location: Receive", 1);
+                if (!(e is System.Threading.ThreadAbortException))
+                    ShowMsg("Connection error! Location: Receive", 1);
             }
         }
 
@@ -186,7 +191,7 @@ namespace socket1_client
             {
                 string str = txtMsg.Text.Trim();
                 byte[] buffer = System.Text.Encoding.UTF8.GetBytes(str);
-                bool answer = MessageHeaders(msgType.text,ref buffer);
+                bool answer = MessageHeaders(msgType.text, ref buffer);
                 socketSend.Send(buffer);
                 ShowMsg("Send to " + socketSend.RemoteEndPoint + ": " + str, 2);
                 txtMsg.Clear();
@@ -222,7 +227,7 @@ namespace socket1_client
         /// <summary>
         /// define the message types
         /// </summary>
-        enum msgType
+        private enum msgType
         {
             text,
             file,
@@ -237,8 +242,8 @@ namespace socket1_client
                 {
                     receive.Abort();
                     socketSend.Close();
+                    cBoxConnect.CheckState = CheckState.Unchecked;
                     connected = false;
-
                     ShowMsg("Connection close!");
                 }
                 else
@@ -250,7 +255,6 @@ namespace socket1_client
             {
                 ShowMsg("Disconnect failure", 1);
             }
-            
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

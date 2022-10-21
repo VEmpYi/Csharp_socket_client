@@ -38,11 +38,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.btnDisconnect = new System.Windows.Forms.Button();
+            this.cBoxConnect = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(334, 14);
+            this.btnConnect.Location = new System.Drawing.Point(364, 15);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(75, 23);
             this.btnConnect.TabIndex = 0;
@@ -124,7 +125,7 @@
             // 
             // btnDisconnect
             // 
-            this.btnDisconnect.Location = new System.Drawing.Point(416, 13);
+            this.btnDisconnect.Location = new System.Drawing.Point(445, 15);
             this.btnDisconnect.Name = "btnDisconnect";
             this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
             this.btnDisconnect.TabIndex = 9;
@@ -132,10 +133,22 @@
             this.btnDisconnect.UseVisualStyleBackColor = true;
             this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
             // 
+            // cBoxConnect
+            // 
+            this.cBoxConnect.AutoCheck = false;
+            this.cBoxConnect.AutoSize = true;
+            this.cBoxConnect.Location = new System.Drawing.Point(340, 19);
+            this.cBoxConnect.Name = "cBoxConnect";
+            this.cBoxConnect.Size = new System.Drawing.Size(18, 17);
+            this.cBoxConnect.TabIndex = 10;
+            this.cBoxConnect.TabStop = false;
+            this.cBoxConnect.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.ClientSize = new System.Drawing.Size(522, 421);
+            this.Controls.Add(this.cBoxConnect);
             this.Controls.Add(this.btnDisconnect);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -166,6 +179,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnDisconnect;
+        internal System.Windows.Forms.CheckBox cBoxConnect;
     }
 }
 
